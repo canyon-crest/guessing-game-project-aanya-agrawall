@@ -2,17 +2,19 @@
 let level, answer, score;
 const levelArr = document.getElementsByName("level"); //why does this one need getelementsbyname and not other ones?
 const scoreArr = [];
-date.textContent = time();
+date.textContent = getTime();
 
 // add event listeners
 playBtn.addEventListener("click", play); // why don't we add function()
 guessBtn.addEventListener("click", makeGuess);
+giveUp.addEventListener("click", givingUp);
 
 function play(){ //this disables level select, enables guessing, random # based on level, sets score to 0 every new game)
     score = 0;
     guess.disabled = false;
     playBtn.disabled = true;
     guessBtn.disabled = false;
+    giveUp.disabled = false;
     // not doing giveUp rn (we gotta figure out ourselves)
     
     for(let i=0; i<levelArr.length; i++){
@@ -34,7 +36,7 @@ function makeGuess(){
     }
     score++; // valid guess add 1 to score
     if(userGuess > answer){
-        msg.textContent = userGuess + " is too high! Guess again...";
+        msg.textContent = userGuess + ", is too high! Guess again...";
     }
     else if(userGuess < answer){
         msg.textContent = userGuess + " is too low! Guess again...";
@@ -43,6 +45,7 @@ function makeGuess(){
         msg.textContent = "You got it, it took you " + score + " tries :) Press play to play again."
         updateScore();
         reset();
+        giveUp.disabled = true;
     }
 }
 
@@ -55,6 +58,14 @@ function reset(){
     for(let i=0; i<levelArr.length; i++){ //resets level select
         levelArr[i].disabled = false;
     }
+}
+
+function givingUp(){
+    score = parseInt(level);
+    msg.textContent = "You've given up! Press play to play again!";
+    updateScore();
+    reset();
+    giveUp.disabled = true;
 }
 
 function updateScore(){
@@ -70,11 +81,26 @@ function updateScore(){
         }
     }
     let avg = sum/scoreArr.length;
+    console.log(sum);
     avgScore.textContent = "Average Score: " + avg.toFixed(2);
 }
-function time(){
+
+function getTime(){
     let d = new Date();
-    // concatenate a string with all teh date info
-    d = d.getFullYear() + " " + d.getTime();
-    return d;
+    const monthArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    let suffix = "";
+    if ( d.getDate() == 1 || d.getDate() == 21 || d.getDate() == 31 ){ suffix = "st"; }
+    else if( d.getDate() == 2 || d.getDate() == 22 ){ suffix = "nd"; }
+    else{ suffix = "th"; }
+
+    d = monthArr[d.getMonth()] + " " + d.getDate() + suffix + ", " + d.getFullYear() + ", ";
+    
+    time = new Date();
+        h = time.getHours()%12;
+        m = time.getMinutes();
+        s = time.getSeconds();
+        if ( s < 10 ) { s = "0" + s; }
+        if (m < 10) { m = "0" + m;} 
+        document.getElementById("date").innerHTML = d + h + ":" + m + ":" + s;
+        setInterval(getTime, 1000);
 }
