@@ -1,13 +1,22 @@
-// global variables
+// GLOBAL VARIABLES
 let level, answer, score;
-const levelArr = document.getElementsByName("level"); //why does this one need getelementsbyname and not other ones?
+const levelArr = document.getElementsByName("level");
 const scoreArr = [];
 date.textContent = getTime();
 
-// add event listeners
+// EVENT LISTENERS
 playBtn.addEventListener("click", play); // why don't we add function()
 guessBtn.addEventListener("click", makeGuess);
 giveUp.addEventListener("click", givingUp);
+enterName.addEventListener("click", setName);
+
+function setName(){
+    username = document.getElementById("username").value;
+    username = username.charAt(0).toUpperCase() + username.substring(1).toLowerCase();
+    enterName.disabled=true;
+    document.getElementById("username").disabled=true;
+    nameInput.textContent = username + "'s Game:";
+}
 
 function play(){ //this disables level select, enables guessing, random # based on level, sets score to 0 every new game)
     score = 0;
@@ -23,7 +32,7 @@ function play(){ //this disables level select, enables guessing, random # based 
         }
         levelArr[i].disabled = true;
     }
-    msg.textContent = "Guess a number from 1-" + level + "!";
+    msg.textContent = username + ", guess a number from 1-" + level + "!";
     answer = Math.floor(Math.random()*level)+1;
     guess.placeholder = answer; // js for our purposes
 }
@@ -31,18 +40,18 @@ function play(){ //this disables level select, enables guessing, random # based 
 function makeGuess(){
     let userGuess = parseInt(guess.value); // parseInt looks for numbers in the string, number tries to make the whole thing a number
     if(isNaN(userGuess) || userGuess <1 || userGuess > level){
-        msg.textContent = "Enter a VALID #1-" + level;
+        msg.textContent = username + ", enter a VALID #1-" + level;
         return; // make sure none of the other parts of the func occurs
     }
     score++; // valid guess add 1 to score
     if(userGuess > answer){
-        msg.textContent = userGuess + ", is too high! Guess again...";
+        msg.textContent = username + ", your guess, " + userGuess + ", is too high! Guess again...";
     }
     else if(userGuess < answer){
-        msg.textContent = userGuess + " is too low! Guess again...";
+        msg.textContent = username + ", your guess, " + userGuess + " is too low! Guess again...";
     }
     else{
-        msg.textContent = "You got it, it took you " + score + " tries :) Press play to play again."
+        msg.textContent = username + ", you got it! It took you " + score + " tries :) Press play to play again."
         updateScore();
         reset();
         giveUp.disabled = true;
@@ -62,7 +71,7 @@ function reset(){
 
 function givingUp(){
     score = parseInt(level);
-    msg.textContent = "You've given up! Press play to play again!";
+    msg.textContent = "You've given up! Your score is " + level + ". Press play to play again!";
     updateScore();
     reset();
     giveUp.disabled = true;
