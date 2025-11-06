@@ -2,6 +2,7 @@
 let level, answer, score;
 const levelArr = document.getElementsByName("level");
 const scoreArr = [];
+const timeArr = [];
 date.textContent = getTime();
 
 // EVENT LISTENERS
@@ -24,6 +25,7 @@ function play(){ //this disables level select, enables guessing, random # based 
     playBtn.disabled = true;
     guessBtn.disabled = false;
     giveUp.disabled = false;
+    startTimer();
     // not doing giveUp rn (we gotta figure out ourselves)
     
     for(let i=0; i<levelArr.length; i++){
@@ -37,18 +39,42 @@ function play(){ //this disables level select, enables guessing, random # based 
     guess.placeholder = answer; // js for our purposes
 }
 
+function startTimer(){
+    let seconds = 0;
+    
+
+}
+
 function makeGuess(){
-    let userGuess = parseInt(guess.value); // parseInt looks for numbers in the string, number tries to make the whole thing a number
+    let userGuess = parseInt(guess.value);
+    let temperature = "";
     if(isNaN(userGuess) || userGuess <1 || userGuess > level){
         msg.textContent = username + ", enter a VALID #1-" + level;
         return; // make sure none of the other parts of the func occurs
     }
     score++; // valid guess add 1 to score
+    
+    // all the absolute value stuff
+    if(level == 3){
+        if(Math.abs(answer - userGuess) == 1){ temperature = "You're hot!"; }
+        else{ temperature = "You're cold."; }
+    }
+    else if(level == 10){
+        if(Math.abs(answer - userGuess) == 1){ temperature = "You're hot!"; }
+        else if(Math.abs(answer - userGuess) <=3){ temperature = "You're warm :)"}
+        else{ temperature = "You're cold." }
+    }
+    else{
+        if(Math.abs(answer - userGuess) <=5){ temperature = "You're hot!"; }
+        else if(Math.abs(answer - userGuess) <= 10){ temperature="You're warm :)"}
+        else{ temperature = "You're cold."}
+    }
+    
     if(userGuess > answer){
-        msg.textContent = username + ", your guess, " + userGuess + ", is too high! Guess again...";
+        msg.textContent = username + ", your guess, " + userGuess + ", is too high. " + temperature + " Guess again...";
     }
     else if(userGuess < answer){
-        msg.textContent = username + ", your guess, " + userGuess + " is too low! Guess again...";
+        msg.textContent = username + ", your guess, " + userGuess + " is too low. " + temperature + " Guess again...";
     }
     else{
         msg.textContent = username + ", you got it! It took you " + score + " tries :) Press play to play again."
@@ -90,7 +116,6 @@ function updateScore(){
         }
     }
     let avg = sum/scoreArr.length;
-    console.log(sum);
     avgScore.textContent = "Average Score: " + avg.toFixed(2);
 }
 
@@ -100,6 +125,7 @@ function getTime(){
     let suffix = "";
     if ( d.getDate() == 1 || d.getDate() == 21 || d.getDate() == 31 ){ suffix = "st"; }
     else if( d.getDate() == 2 || d.getDate() == 22 ){ suffix = "nd"; }
+    else if( d.getDate() == 3 || d.getDate() == 23){ suffix = "rd"; }
     else{ suffix = "th"; }
 
     d = monthArr[d.getMonth()] + " " + d.getDate() + suffix + ", " + d.getFullYear() + ", ";
