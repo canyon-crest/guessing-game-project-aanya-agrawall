@@ -1,9 +1,9 @@
 // GLOBAL VARIABLES
-let level, answer, score;
+let level, answer, score, seconds, scoreQuality;
 const levelArr = document.getElementsByName("level");
 const scoreArr = [];
 const timeArr = [];
-date.textContent = getTime();
+date.textContent = getTimeDate();
 
 // EVENT LISTENERS
 playBtn.addEventListener("click", play); // why don't we add function()
@@ -40,9 +40,24 @@ function play(){ //this disables level select, enables guessing, random # based 
 }
 
 function startTimer(){
-    let seconds = 0;
-    
+    const targetDate = new Date;  
+    timer = setInterval(() => { 
+        const now = new Date(); 
+        const milliseconds = now.getTime() - targetDate.getTime();
+        seconds = Math.ceil(milliseconds / 1000);
+        if(seconds == 1){ document.getElementById("timeText").textContent = "Time taken: " + seconds + " second"; }
+        else{document.getElementById("timeText").textContent = "Time taken: " + seconds + " seconds"; }}, 1000); }
 
+function stopTimer(){
+    clearInterval(timer);
+    timeArr.push(seconds);
+    timeArr.sort((a,b)=>a-b);
+    let timeSum = 0;
+    for(let i=0; i<timeArr.length; i++){
+        timeSum += timeArr[i];}
+    let timeAvg = timeSum/timeArr.length;
+    fastestTime.textContent = "Fastest Time: " + timeArr[0].toFixed(2);
+    avgTime.textContent = "Average Time: " + timeAvg.toFixed(2);
 }
 
 function makeGuess(){
@@ -77,10 +92,30 @@ function makeGuess(){
         msg.textContent = username + ", your guess, " + userGuess + " is too low. " + temperature + " Guess again...";
     }
     else{
-        msg.textContent = username + ", you got it! It took you " + score + " tries :) Press play to play again."
+        scoreLevel();
+        msg.textContent = username + ", you got it! It took you " + score + " tries" + scoreQuality + " Press play to play again."
         updateScore();
         reset();
         giveUp.disabled = true;
+        stopTimer();
+    }
+}
+
+function scoreLevel(){
+    if(level ==3){
+        if(score == 1){ scoreQuality = " :) You did good!" }
+        else if (score == 2){ scoreQuality = ", you did okay." }
+        else{ scoreQuality = ". You didn't do so well." }
+    }
+    else if(level ==10){
+        if(score <= 2){ scoreQuality = " :) You did good!" }
+        else if (score <= 3){ scoreQuality = ", you did okay." }
+        else{ scoreQuality = ". You didn't do so well." }
+    }
+    else{
+        if(score <= 3){ scoreQuality = " :) You did good!" }
+        else if (score <= 6){ scoreQuality = ", you did okay." }
+        else{ scoreQuality = ". You didn't do so well." }
     }
 }
 
@@ -119,7 +154,7 @@ function updateScore(){
     avgScore.textContent = "Average Score: " + avg.toFixed(2);
 }
 
-function getTime(){
+function getTimeDate(){
     let d = new Date();
     const monthArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     let suffix = "";
@@ -128,7 +163,7 @@ function getTime(){
     else if( d.getDate() == 3 || d.getDate() == 23){ suffix = "rd"; }
     else{ suffix = "th"; }
 
-    d = monthArr[d.getMonth()] + " " + d.getDate() + suffix + ", " + d.getFullYear() + ", ";
+    d = ", " + monthArr[d.getMonth()] + " " + d.getDate() + suffix + ", " + d.getFullYear() + ", ";
     
     time = new Date();
         h = time.getHours()%12;
@@ -136,6 +171,14 @@ function getTime(){
         s = time.getSeconds();
         if ( s < 10 ) { s = "0" + s; }
         if (m < 10) { m = "0" + m;} 
-        document.getElementById("date").innerHTML = d + h + ":" + m + ":" + s;
-        setInterval(getTime, 1000);
+
+         if ( h > 11) { timeSuffix = "PM"; }
+        else{ timeSuffix = "AM"; }
+        console.log(timeSuffix);
+        
+        if( h == 12 ) { h = 12}
+        else{ h = h%12 }
+        
+        document.getElementById("date").innerHTML = h + ":" + m + ":" + s + " " + timeSuffix + d;
+        setInterval(getTimeDate, 1000);
 }
