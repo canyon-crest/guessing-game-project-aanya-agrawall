@@ -1,5 +1,5 @@
 // GLOBAL VARIABLES
-let level, answer, score, seconds, scoreQuality;
+let level, answer, score, seconds, scoreQuality, timer;
 const levelArr = document.getElementsByName("level");
 const scoreArr = [];
 const timeArr = [];
@@ -40,11 +40,14 @@ function play(){ //this disables level select, enables guessing, random # based 
 }
 
 function startTimer(){
-    const targetDate = new Date;  
+    clearInterval(timer);
+    seconds=0;
+    document.getElementById("timeText").textContent = "Time Taken: 0 seconds";
+    
+    const startTime = Date.now();  
     timer = setInterval(() => { 
-        const now = new Date(); 
-        const milliseconds = now.getTime() - targetDate.getTime();
-        seconds = Math.ceil(milliseconds / 1000);
+        const elapsed = Math.floor((Date.now() - startTime)/1000);
+        seconds = elapsed;
         if(seconds == 1){ document.getElementById("timeText").textContent = "Time taken: " + seconds + " second"; }
         else{document.getElementById("timeText").textContent = "Time taken: " + seconds + " seconds"; }}, 1000); }
 
@@ -52,6 +55,7 @@ function stopTimer(){
     clearInterval(timer);
     timeArr.push(seconds);
     timeArr.sort((a,b)=>a-b);
+    
     let timeSum = 0;
     for(let i=0; i<timeArr.length; i++){
         timeSum += timeArr[i];}
@@ -94,7 +98,7 @@ function makeGuess(){
     else{
         scoreLevel();
         msg.textContent = username + ", you got it! It took you " + score + " tries" + scoreQuality + " Press play to play again."
-        updateScore();
+        updateScore(true);
         reset();
         giveUp.disabled = true;
         stopTimer();
@@ -133,17 +137,17 @@ function reset(){
 function givingUp(){
     score = parseInt(level);
     msg.textContent = "You've given up! Your score is " + level + ". Press play to play again!";
-    updateScore();
+    updateScore(false);
     reset();
     giveUp.disabled = true;
 }
 
-function updateScore(){
+function updateScore(isWin){
     scoreArr.push(score);
     scoreArr.sort((a,b)=>a-b); //sorts by increasing order
     let sum = 0;
     let lb = document.getElementsByName("leaderboard");
-    wins.textContent = "Total wins: " + scoreArr.length; //only does this when you get the right value bc updateScore() is in the makeGuess else{} 
+    if (isWin) { wins.textContent = "Total wins: " + scoreArr.length; }
     for(let i=0; i<scoreArr.length; i++){
         sum += scoreArr[i];
         if(i<lb.length){
@@ -163,7 +167,7 @@ function getTimeDate(){
     else if( d.getDate() == 3 || d.getDate() == 23){ suffix = "rd"; }
     else{ suffix = "th"; }
 
-    d = ", " + monthArr[d.getMonth()] + " " + d.getDate() + suffix + ", " + d.getFullYear() + ", ";
+    d = ", " + monthArr[d.getMonth()] + " " + d.getDate() + suffix + ", " + d.getFullYear();
     
     time = new Date();
         h = time.getHours()%12;
